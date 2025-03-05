@@ -24,7 +24,7 @@ All versioning is controlled by GtX | Andy and not by any other page, individual
 ## Mods Using Spec
 [🎁 Field Service Trailer](https://www.farming-simulator.com/mod.php?mod_id=307924&title=fs2025)
 
-> ***Important: The dismantling of the mod listed above or the removal of any parts for use on other publicly released mods is strictly prohibited without written approval from GtX | Andy***
+> ***Important: The mod listed above can be enjoyed while playing Farming Simulator 25 or as a reference of how the available features can be used in your own mod. The dismantling of this mod or the removal of any parts for use on other publicly released mods is strictly prohibited without written approval from GtX | Andy***
 
 ## Documentation
 Not all features used in the above listed mod are required when creating your own mods. The service script can operate with just a `Vehicle Trigger` and `Player Trigger` as shown below.
