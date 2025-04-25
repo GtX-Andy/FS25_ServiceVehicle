@@ -3,11 +3,11 @@ Copyright (C) GtX (Andy), 2018
 
 Author: GtX | Andy
 Date: 13.12.2018
-Revision: FS25-01
+Revision: FS25-02
 
 Contact:
 https://forum.giants-software.com
-https://github.com/GtX-Andy
+https://github.com/GtX-Andy/FS25_ServiceVehicle
 
 Important:
 Free for use in mods (FS25 Only) - no permission needed.
@@ -596,7 +596,7 @@ function ServiceVehicleBase:onUpdate(dt)
         local visible = false
 
         if not triggerMarkers.hideWhenMoving or self.vehicle.lastSpeed < 0.0001 then
-            visible = triggerMarkers.active and self:getIsActive()
+            visible = triggerMarkers.active and self:getIsActive() or false
         end
 
         if triggerMarkers.visible ~= visible then
@@ -641,13 +641,13 @@ function ServiceVehicleBase:onUpdate(dt)
 end
 
 function ServiceVehicleBase:setOperation(active, noEventSend)
-    if self.operation ~= nil then
+    if self.operation ~= nil and active ~= nil then
         self.operation.active = active
     end
 end
 
 function ServiceVehicleBase:setTriggerMarkers(active, noEventSend)
-    if self.triggerMarkers ~= nil then
+    if self.triggerMarkers ~= nil and active ~= nil then
         if self.triggerMarkers.active ~= active then
             self.triggerMarkers.active = active
 
@@ -1038,7 +1038,7 @@ function ServiceVehicleWorkshop.drawInfoText(node, text, colour, size)
 end
 
 function ServiceVehicleWorkshop:setOperation(active, noEventSend)
-    if self.operation ~= nil then
+    if self.operation ~= nil and active ~= nil then
         if self.operation.active ~= active then
             self.operation.active = active
 
@@ -1737,7 +1737,7 @@ function ServiceVehicleConsumables:onUpdate(dt)
 end
 
 function ServiceVehicleConsumables:setOperation(active, noEventSend)
-    if self.operation ~= nil then
+    if self.operation ~= nil and active ~= nil then
         if self.operation.active ~= active then
             self.operation.active = active
 
