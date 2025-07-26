@@ -3,7 +3,7 @@ Copyright (C) GtX (Andy), 2018
 
 Author: GtX | Andy
 Date: 13.12.2018
-Revision: FS25-02
+Revision: FS25-03
 
 Contact:
 https://forum.giants-software.com
@@ -12,15 +12,18 @@ https://github.com/GtX-Andy/FS25_ServiceVehicle
 Important:
 Free for use in mods (FS25 Only) - no permission needed.
 No modifications may be made to this script, including conversion to other game versions without written permission from GtX | Andy
+Copying or removing any part of this code for external use without written permission from GtX | Andy is prohibited.
 
 Frei verwendbar (Nur LS25) - keine erlaubnis nötig
 Ohne schriftliche Genehmigung von GtX | Andy dürfen keine Änderungen an diesem Skript vorgenommen werden, einschließlich der Konvertierung in andere Spielversionen
+Das Kopieren oder Entfernen irgendeines Teils dieses Codes zur externen Verwendung ohne schriftliche Genehmigung von GtX | Andy ist verboten.
 ]]
 
 ServiceVehicle = {}
 
 ServiceVehicle.MOD_NAME = g_currentModName
-ServiceVehicle.SPEC_NAME = string.format("spec_%s.serviceVehicle", g_currentModName)
+ServiceVehicle.SPEC_NAME = string.format("%s.serviceVehicle", g_currentModName)
+ServiceVehicle.SPEC_TABLE_NAME = string.format("spec_%s", ServiceVehicle.SPEC_NAME)
 
 function ServiceVehicle.prerequisitesPresent(specializations)
     return true
@@ -58,6 +61,7 @@ function ServiceVehicle.registerFunctions(vehicleType)
 end
 
 function ServiceVehicle.registerEventListeners(vehicleType)
+    SpecializationUtil.registerEventListener(vehicleType, "onPreLoad", ServiceVehicle)
     SpecializationUtil.registerEventListener(vehicleType, "onLoad", ServiceVehicle)
     SpecializationUtil.registerEventListener(vehicleType, "onDelete", ServiceVehicle)
     SpecializationUtil.registerEventListener(vehicleType, "onUpdate", ServiceVehicle)
@@ -66,14 +70,12 @@ function ServiceVehicle.registerEventListeners(vehicleType)
     SpecializationUtil.registerEventListener(vehicleType, "onFillUnitFillLevelChanged", ServiceVehicle)
 end
 
+function ServiceVehicle:onPreLoad(savegame)
+    self.spec_serviceVehicleMod = self[ServiceVehicle.SPEC_TABLE_NAME]
+end
+
 function ServiceVehicle:onLoad(savegame)
-    self.spec_serviceVehicle = self[ServiceVehicle.SPEC_NAME]
-
-    if self.spec_serviceVehicle == nil then
-        g_logManager:error("[%s] Specialization with name 'serviceVehicle' was not found in modDesc!", ServiceVehicle.MOD_NAME)
-    end
-
-    local spec = self.spec_serviceVehicle
+    local spec = self[ServiceVehicle.SPEC_TABLE_NAME]
 
     local removeNetworking = true
     local removeEventListeners = true
@@ -120,21 +122,23 @@ function ServiceVehicle:onLoad(savegame)
 end
 
 function ServiceVehicle:onDelete()
-    local spec = self.spec_serviceVehicle
+    local spec = self[ServiceVehicle.SPEC_TABLE_NAME]
 
-    if spec.workshop ~= nil then
-        spec.workshop:onDelete()
-        spec.workshop = nil
-    end
+    if spec ~= nil then
+        if spec.workshop ~= nil then
+            spec.workshop:onDelete()
+            spec.workshop = nil
+        end
 
-    if spec.consumables ~= nil then
-        spec.consumables:onDelete()
-        spec.consumables = nil
+        if spec.consumables ~= nil then
+            spec.consumables:onDelete()
+            spec.consumables = nil
+        end
     end
 end
 
 function ServiceVehicle:saveToXMLFile(xmlFile, key, usedModNames)
-    local spec = self.spec_serviceVehicle
+    local spec = self[ServiceVehicle.SPEC_TABLE_NAME]
 
     if spec.workshop ~= nil and spec.workshop.triggerMarkers ~= nil then
         xmlFile:setValue(key .. ".workshop#triggerMarkers", spec.workshop.triggerMarkers.active)
@@ -153,7 +157,7 @@ end
 
 function ServiceVehicle:onReadStream(streamId, connection)
     if connection:getIsServer() then
-        local spec = self.spec_serviceVehicle
+        local spec = self[ServiceVehicle.SPEC_TABLE_NAME]
 
         if spec.workshop ~= nil then
             if spec.workshop.operation ~= nil then
@@ -183,7 +187,7 @@ end
 
 function ServiceVehicle:onWriteStream(streamId, connection)
     if not connection:getIsServer() then
-        local spec = self.spec_serviceVehicle
+        local spec = self[ServiceVehicle.SPEC_TABLE_NAME]
 
         if spec.workshop ~= nil then
             if spec.workshop.operation ~= nil then
@@ -212,7 +216,7 @@ function ServiceVehicle:onWriteStream(streamId, connection)
 end
 
 function ServiceVehicle:onUpdate(dt, isActiveForInput, isActiveForInputIgnoreSelection, isSelected)
-    local spec = self.spec_serviceVehicle
+    local spec = self[ServiceVehicle.SPEC_TABLE_NAME]
 
     if spec ~= nil then
         local raiseActive = false
@@ -232,7 +236,7 @@ function ServiceVehicle:onUpdate(dt, isActiveForInput, isActiveForInputIgnoreSel
 end
 
 function ServiceVehicle:onFillUnitFillLevelChanged(fillUnitIndex, fillLevelDelta, fillTypeIndex, toolType, fillPositionData, appliedDelta)
-    local spec = self.spec_serviceVehicle
+    local spec = self[ServiceVehicle.SPEC_TABLE_NAME]
 
     if spec ~= nil and spec.consumables ~= nil and spec.consumables.selectedType ~= nil then
         if spec.consumables:getIsActive() and spec.consumables.selectedType.fillUnitIndex == fillUnitIndex then
@@ -244,7 +248,7 @@ function ServiceVehicle:onFillUnitFillLevelChanged(fillUnitIndex, fillLevelDelta
 end
 
 function ServiceVehicle:setServiceOperation(typeId, active, noEventSend)
-    local spec = self.spec_serviceVehicle
+    local spec = self[ServiceVehicle.SPEC_TABLE_NAME]
 
     if typeId == ServiceVehicleEvent.WORKSHOP_OPERATION then
         if spec.workshop ~= nil then
@@ -258,7 +262,7 @@ function ServiceVehicle:setServiceOperation(typeId, active, noEventSend)
 end
 
 function ServiceVehicle:setServiceTriggerMarkers(typeId, active, noEventSend)
-    local spec = self.spec_serviceVehicle
+    local spec = self[ServiceVehicle.SPEC_TABLE_NAME]
 
     if typeId == ServiceVehicleEvent.WORKSHOP_MARKERS then
         if spec.workshop ~= nil then
@@ -272,7 +276,7 @@ function ServiceVehicle:setServiceTriggerMarkers(typeId, active, noEventSend)
 end
 
 function ServiceVehicle:setServiceConsumableType(index, force, noEventSend)
-    local spec = self.spec_serviceVehicle
+    local spec = self[ServiceVehicle.SPEC_TABLE_NAME]
 
     if spec.consumables ~= nil then
         spec.consumables:setConsumableType(index, force, noEventSend)
@@ -280,7 +284,7 @@ function ServiceVehicle:setServiceConsumableType(index, force, noEventSend)
 end
 
 function ServiceVehicle:updateDebugValues(values)
-    local spec = self.spec_serviceVehicle
+    local spec = self[ServiceVehicle.SPEC_TABLE_NAME]
 
     if spec.workshop ~= nil then
         table.insert(values, {
@@ -343,7 +347,7 @@ function ServiceVehicle:loadDashboardGroupFromXML(superFunc, xmlFile, key, group
 end
 
 function ServiceVehicle:getIsDashboardGroupActive(superFunc, group)
-    local spec = self.spec_serviceVehicle
+    local spec = self[ServiceVehicle.SPEC_TABLE_NAME]
 
     if spec ~= nil and (group.isServiceEngineStarting or group.isServiceEngineRunning) then
         local operation = spec.consumables ~= nil and spec.consumables.operation
@@ -2212,7 +2216,7 @@ function ServiceVehicleEvent:run(connection)
 end
 
 function ServiceVehicleEvent.sendEvent(object, typeId, variable, noEventSend)
-    if (noEventSend == nil or noEventSend == false) and object.spec_serviceVehicle ~= nil then
+    if (noEventSend == nil or noEventSend == false) and object[ServiceVehicle.SPEC_TABLE_NAME] ~= nil then
         if g_server ~= nil then
             g_server:broadcastEvent(ServiceVehicleEvent.new(object, typeId, variable), nil, nil, object)
         else

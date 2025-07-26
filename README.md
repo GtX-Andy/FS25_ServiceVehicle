@@ -1,6 +1,6 @@
 # Service Vehicle Specialisation
 
- `Farming Simulator  25`&nbsp;&nbsp;&nbsp;&nbsp;`Revision:  FS25-02`&nbsp;&nbsp;&nbsp;&nbsp;`Game Version:  1.4.0.0`
+ `Farming Simulator  25`&nbsp;&nbsp;&nbsp;&nbsp;`Revision:  FS25-03`&nbsp;&nbsp;&nbsp;&nbsp;`Game Version:  1.10.0.0`
 
 ## About
 A Farming Simulator 25 vehicle specialisation that provides a workshop trigger and other optional features.
